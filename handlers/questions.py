@@ -1,4 +1,3 @@
-# import requests
 from aiogram import Router
 from aiogram.client.session import aiohttp
 from aiogram.filters import Command
@@ -10,8 +9,9 @@ from keyboards.chose_date import chose_date
 from keyboards.chose_start_end import chose_start_end, chose_finish, chose_hard_from, chose_hard_to
 from datetime import date, datetime
 
+from bs4 import BeautifulSoup
+from settings import API_KEY
 router = Router()  # [1]
-API_KEY = 'bcbedf3a-ed56-419c-b2f6-0f6295f7cee5'
 
 
 @router.message(Command("start"))  # [2]
@@ -51,6 +51,47 @@ async def req_marshrut(transport_type, start_point, end_point, current_date_str)
             data = await response.json()
             print(data)
             return data
+
+
+async def get_ecp_code(station_name):
+    # url = f'https://api.rasp.yandex.net/v3.0/search/stations/?apikey={API_TOKEN}&format=json&lang=ru_RU' \
+    #       f'&station={station_name}'
+    api_url = "https://online.freicon.ru/info/stations?=25"
+    params = {
+        "page": 1,
+        "perPage": 25,
+        "name": station_name
+    }
+    # print(f'url - {url}')
+    async with aiohttp.ClientSession() as session:
+        async with session.get(api_url, params=params) as response:
+            if response.status == 200:
+                print('200')
+                html = await response.text()
+
+                # Создаем объект BeautifulSoup
+                def parse_html(html):
+                    soup = BeautifulSoup(html, "html.parser")
+
+                    # Находим все элементы с тегом "a"
+                    body = soup.find("tbody")
+                    print(body)
+
+                return 'str'
+                # if data['pagination']['total'] > 0:
+                #     station = data['stations'][0]
+                #     esr_code = station['code']
+                #     print(f'ЕСР-код станции "{station_name}": {esr_code}')
+                #     print('ecp')
+                #     print(esr_code)
+                #     print(type(esr_code))
+                #     return esr_code
+                # else:
+                #     print(f'Станция "{station_name}" не найдена')
+                #     return 'not found'
+            else:
+                print(f'Ошибка при выполнении запроса: {response.status}')
+                return response.status
 
 
 # выбор транспорта
@@ -160,11 +201,13 @@ async def set_search(message: Message):
 async def set_start_point(message: Message):
     if not data_for_send_req['toggle']:
         print(f'message.text-start - {message.text}')
-        data_for_send_req['start_point'] = 's9601796'
+        print(type(message.text))
+        code = await get_ecp_code(message.text)
+        data_for_send_req['start_point'] = code
         data_for_send_req['toggle'] = True
         await message.answer(str(data_for_send_req), reply_markup=chose_start_end())
     else:
         print(f'message.text-finish - {message.text}')
-        data_for_send_req['end_point'] = 'c33897'
+        data_for_send_req['end_point'] = await get_ecp_code(message.text)
         data_for_send_req['toggle'] = False
         await message.answer(str(data_for_send_req), reply_markup=chose_finish())

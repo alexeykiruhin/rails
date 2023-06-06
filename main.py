@@ -2,12 +2,10 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from handlers import questions, start_end
 import logging
+from settings import API_TOKEN
 
 # Включаем логирование, чтобы не пропустить важные сообщения
 logging.basicConfig(level=logging.INFO)
-
-API_TOKEN = '6178198572:AAGoZUXGvLrMey37QIASjnPFWLXPLrCEKLA'
-API_KEY = 'bcbedf3a-ed56-419c-b2f6-0f6295f7cee5'
 
 
 # Запуск бота
