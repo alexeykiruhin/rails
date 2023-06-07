@@ -30,3 +30,11 @@ def chose_hard_to() -> ReplyKeyboardMarkup:
     kb.button(text="Казанское")
     kb.adjust(2)
     return kb.as_markup(resize_keyboard=True)
+
+
+def chose_station(stations) -> ReplyKeyboardMarkup:
+    kb = ReplyKeyboardBuilder()
+    for s in stations:
+        kb.button(text=s, callback_data='s')
+    kb.adjust(1)
+    return kb.as_markup(resize_keyboard=True)
