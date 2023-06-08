@@ -8,13 +8,6 @@ async def fetch(session, url):
 
 
 async def get_code(station_name):
-    # url = f'https://online.freicon.ru/v1/stations' \
-    #       f'?page=1' \
-    #       f'&per_page=1' \
-    #       f'&code=' \
-    #       f'&name={station_name}' \
-    #       f'&railwayId=0' \
-    #       f'&typeId=0'
 
     url = 'https://suggests.rasp.yandex.net/all_suggests' \
           '?client_city=213' \
@@ -29,6 +22,5 @@ async def get_code(station_name):
         html = await fetch(session, url)
         html_json = json.loads(html)
         stations = [s for s in html_json[1] if(s[2][:2] == 'пл')]
-        # print(stations)
 
     return stations

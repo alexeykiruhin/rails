@@ -28,7 +28,7 @@ data_for_send_req = {
     'start_point': '',
     'end_point': '',
     'current_date_str': '',
-    'toggle': False
+    'toggle': 0
 }
 
 
@@ -119,6 +119,7 @@ async def answer_date(message: Message):
 @router.message(Text(text="откуда", ignore_case=True))
 async def answer_from(message: Message):
     # print(data_for_send_req)
+    data_for_send_req['toggle'] = 0
     await message.answer(
         f"Введите точку отправления:",
         reply_markup=chose_hard_from()
@@ -128,6 +129,7 @@ async def answer_from(message: Message):
 @router.message(Text(text="куда", ignore_case=True))
 async def answer_to(message: Message):
     # print(data_for_send_req)
+    data_for_send_req['toggle'] = 1
     await message.answer(
         f"Введите точку прибытия:",
         reply_markup=chose_hard_to()
@@ -167,35 +169,60 @@ async def set_search(message: Message):
 
 
 # обработка ответа откуда и куда
+# @router.message()
+# async def set_start_point(message: Message):
+#     out_str: list = []
+#     code = await get_code(message.text)
+#     if not data_for_send_req['toggle']:
+#         if len(code) == 1:
+#             print('code = 1')
+#             data_for_send_req['start_point'] = code[0][0]
+#             data_for_send_req['toggle'] = True
+#             await message.answer(str(data_for_send_req), reply_markup=chose_start_end())
+#         else:
+#             print(f'code - {code}')
+#             for c in code:
+#                 print(f'c - {c}')
+#                 out_str.append(c[1])
+#             print(out_str)
+#             await message.answer(str(data_for_send_req), reply_markup=chose_station(out_str))
+#     else:
+#         # code = await get_code(message.text)
+#         # out_str: str = ''
+#         if len(code) == 1:
+#             print('code = 1')
+#             data_for_send_req['end_point'] = code[0][0]
+#             data_for_send_req['toggle'] = False
+#             await message.answer(str(data_for_send_req), reply_markup=chose_finish())
+#         else:
+#             print(f'code - {code}')
+#             for c in code:
+#                 print(f'c - {c[1]}')
+#                 out_str.append(c[1])
+#             print(f'out_str - {out_str}')
+#             await message.answer(f"Найденных станций: {len(code)} \nВыберите нужную:", reply_markup=chose_station(out_str))
+
 @router.message()
 async def set_start_point(message: Message):
     out_str: list = []
-    code = await get_code(message.text)
-    if not data_for_send_req['toggle']:
-        if len(code) == 1:
-            print('code = 1')
-            data_for_send_req['start_point'] = code[0][0]
-            data_for_send_req['toggle'] = True
-            await message.answer(str(data_for_send_req), reply_markup=chose_start_end())
-        else:
-            print(f'code - {code}')
-            for c in code:
-                print(f'c - {c}')
-                out_str.append(c[1])
-            print(out_str)
-            await message.answer(str(data_for_send_req), reply_markup=chose_station(out_str))
+    if data_for_send_req['toggle'] == 0:
+        code = await get_code(message.text)
     else:
-        # code = await get_code(message.text)
-        # out_str: str = ''
-        if len(code) == 1:
-            print('code = 1')
+        code = await get_code(message.text)
+    print(data_for_send_req['toggle'])
+    if len(code) == 1:
+        # 0 = точка отправления
+        if data_for_send_req['toggle'] == 0:
+            data_for_send_req['start_point'] = code[0][0]
+            await message.answer(str(data_for_send_req), reply_markup=chose_start_end())
+        # 1 = точка прибытия
+        elif data_for_send_req['toggle'] == 1:
             data_for_send_req['end_point'] = code[0][0]
-            data_for_send_req['toggle'] = False
             await message.answer(str(data_for_send_req), reply_markup=chose_finish())
-        else:
-            print(f'code - {code}')
-            for c in code:
-                print(f'c - {c[1]}')
-                out_str.append(c[1])
-            print(f'out_str - {out_str}')
-            await message.answer(f"Найденных станций: {len(code)} \nВыберите нужную:", reply_markup=chose_station(out_str))
+        # 2 = построить маршрут
+        elif data_for_send_req['toggle'] == 2:
+            pass
+    else:
+        for c in code:
+            out_str.append(c[1])# тут надо передавать еще и айди и потом прокидыать его  в пункт 1
+        await message.answer(str(data_for_send_req), reply_markup=chose_station(out_str))
