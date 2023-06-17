@@ -1,5 +1,5 @@
-from aiogram.types import ReplyKeyboardMarkup
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.types import ReplyKeyboardMarkup, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 
 
 def chose_start_end() -> ReplyKeyboardMarkup:
@@ -32,9 +32,9 @@ def chose_hard_to() -> ReplyKeyboardMarkup:
     return kb.as_markup(resize_keyboard=True)
 
 
-def chose_station(stations) -> ReplyKeyboardMarkup:
-    kb = ReplyKeyboardBuilder()
-    for s in stations:
-        kb.button(text=s, callback_data='s')
+def chose_station(stations) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for s, c in stations:
+        kb.add(InlineKeyboardButton(text=c, callback_data=s))
     kb.adjust(1)
     return kb.as_markup(resize_keyboard=True)

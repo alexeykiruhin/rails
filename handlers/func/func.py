@@ -22,5 +22,6 @@ async def get_code(station_name):
         html = await fetch(session, url)
         html_json = json.loads(html)
         stations = [s for s in html_json[1] if(s[2][:2] == 'пл')]
+        print(f'stations - {len(stations)}')
 
     return stations
